@@ -14,8 +14,7 @@
                        (append new-list '(&allow-other-keys))
                        new-list))
                  list)))
-    (let* ((lambda-list (add-allow-keys lambda-list))
-           (expression (loop for param in lambda-list
+    (let* ((expression (loop for param in lambda-list
                              with into-keys = nil
                              when (not (char= (char (write-to-string param) 0)
                                               #\&))
@@ -36,7 +35,7 @@
                                                           0)
                                                     #\&)
                                              (not (eql param '&key))))
-                                      lambda-list))
+                                      (add-allow-keys lambda-list)))
            (defun-lambda-list (loop for param in lambda-list
                                     with into-keys = nil
                                     when (eql param '&key)
