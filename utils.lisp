@@ -1,11 +1,12 @@
 (in-package :cl-user)
 (defpackage :travv0.utils
   (:use #:cl #:alexandria)
-  (:export #:desfun))
+  (:shadow cl:defun)
+  (:export #:defun))
 
 (in-package :travv0.utils)
 
-(defmacro desfun (name lambda-list &body body)
+(defmacro defun (name lambda-list &body body)
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
@@ -51,6 +52,6 @@
                                                    (list param))
                                                (list (intern (string-upcase
                                                               (write-to-string param))))))))
-      `(defun ,name (,@defun-lambda-list)
+      `(cl:defun ,name (,@defun-lambda-list)
          (destructuring-bind ,db-lambda-list (list ,@expression)
            ,@body)))))
