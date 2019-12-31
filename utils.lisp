@@ -20,8 +20,10 @@
                  list)))
     (let* ((expression (loop :for param :in lambda-list
                              :with into-keys = nil
-                             :when (not (char= (char (write-to-string param) 0)
-                                               #\&))
+                             :when (not (or (char= (char (write-to-string param) 0)
+                                                   #\&)
+                                            (char/= (char (write-to-string param) 0)
+                                                    #\()))
                                :append (if into-keys
                                            (if (listp param)
                                                (if (listp (car param))
@@ -35,9 +37,12 @@
                              :when (eql param '&key)
                                :do (setf into-keys t)))
            (db-lambda-list (remove-if (lambda (param)
-                                        (and (char= (char (write-to-string param)
-                                                          0)
-                                                    #\&)
+                                        (and (or (char= (char (write-to-string param)
+                                                              0)
+                                                        #\&)
+                                                 (char/= (char (write-to-string param)
+                                                               0)
+                                                         #\())
                                              (not (eql param '&key))))
                                       (add-allow-keys lambda-list)))
            (defun-lambda-list (loop :for param :in lambda-list
