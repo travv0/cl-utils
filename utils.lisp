@@ -7,7 +7,7 @@
 
 (defmacro desfun (name lambda-list &body body)
   (labels ((add-allow-keys (list)
-             (if (listp list)
+             (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
                    (if (and (eql (car new-list) '&key)
                             (not (position '&allow-other-keys new-list)))
