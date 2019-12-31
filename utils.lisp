@@ -3,7 +3,8 @@
     (:nicknames :tu)
   (:use #:cl #:alexandria)
   (:shadow cl:defun)
-  (:export #:defun))
+  (:export #:defun
+           #:digits))
 
 (in-package :travv0.utils)
 
@@ -57,3 +58,9 @@
       `(cl:defun ,name (,@defun-lambda-list)
          (destructuring-bind ,db-lambda-list (list ,@expression)
            ,@body)))))
+
+(defun digits (number)
+  (etypecase number
+    (string (map 'list (compose #'parse-integer #'string) number))
+    (number (map 'list (compose #'parse-integer #'string)
+                 (write-to-string number)))))
