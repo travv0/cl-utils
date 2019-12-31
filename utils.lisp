@@ -1,11 +1,14 @@
 (in-package :cl-user)
-(defpackage :travv0.utils
+(uiop:define-package :travv0.utils
+  (:nicknames :tu)
   (:use #:cl #:alexandria)
-  (:export #:desfun))
+  (:shadow cl:defun)
+  (:export #:defun))
 
 (in-package :travv0.utils)
 
-(defmacro desfun (name lambda-list &body body)
+(defmacro defun (name lambda-list &body body)
+  (declare (optimize speed))
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
