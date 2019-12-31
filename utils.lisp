@@ -1,12 +1,11 @@
 (in-package :cl-user)
 (defpackage :travv0.utils
   (:use #:cl #:alexandria)
-  (:shadow cl:defun)
-  (:export #:defun))
+  (:export #:desfun))
 
 (in-package :travv0.utils)
 
-(defmacro defun (name lambda-list &body body)
+(defmacro desfun (name lambda-list &body body)
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
