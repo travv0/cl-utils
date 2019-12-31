@@ -9,7 +9,7 @@
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
-                   (if (and (eql (car new-list) '&key)
+                   (if (and (position '&key new-list)
                             (not (position '&allow-other-keys new-list)))
                        (append new-list '(&allow-other-keys))
                        new-list))
