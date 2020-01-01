@@ -21,8 +21,8 @@
                        (append new-list '(&allow-other-keys))
                        new-list))
                  list)))
-    (let* ((expression (loop :for param :in lambda-list
-                             :with into-keys = nil
+    (let* ((expression (loop :with into-keys = nil
+                             :for param :in lambda-list
                              :when (not (or (char= (char (write-to-string param) 0)
                                                    #\&)
                                             (char/= (char (write-to-string param) 0)
@@ -48,8 +48,8 @@
                                                          #\())
                                              (not (eql param '&key))))
                                       (add-allow-keys lambda-list)))
-           (defun-lambda-list (loop :for param :in lambda-list
-                                    :with into-keys = nil
+           (defun-lambda-list (loop :with into-keys = nil
+                                    :for param :in lambda-list
                                     :when (eql param '&key)
                                       :do (setf into-keys t)
                                     :append (if into-keys
@@ -76,15 +76,20 @@
 (defconstant +whitespace-chars+
   (loop :for i :from 0 :to 255
         :for c = (code-char i)
-        :when (sb-unicode:whitespace-p c)
+        :when (#+sbcl sb-unicode:whitespace-p
+               #+lispworks lw:whitespace-char-p
+               c)
           :collecting c))
 
 (defun all-permutations (list)
   (cond ((null list) nil)
         ((null (cdr list)) (list list))
-        (t (loop for element in list
-                 append (mapcar (lambda (l) (cons element l))
-                                (all-permutations (remove element list)))))))
+        (t (remove-duplicates
+            (loop for element in list
+                  append (mapcar (lambda (l) (cons element l))
+                                 (all-permutations (remove element list
+                                                           :count 1))))
+            :test 'equal))))
 
 (defun make-combos (n list)
   (labels ((r (n list i)
