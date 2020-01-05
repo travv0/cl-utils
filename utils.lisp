@@ -6,6 +6,7 @@
   (:export #:defun
            #:digits
            #:+whitespace-chars+
+           #:whitespace-p
            #:all-permutations
            #:make-combos))
 
@@ -73,17 +74,21 @@
     (number (map 'list (compose #'parse-integer #'string)
                  (write-to-string number)))))
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defun whitespace-p (char)
+    (flet ((whitespace-p (c)
+             (not (not (position c '(#\Space #\Newline #\Backspace #\Tab
+                                     #\Linefeed #\Page #\Return #\Rubout))))))
+      (#+sbcl sb-unicode:whitespace-p
+       #+lispworks lw:whitespace-char-p
+       #-(or sbcl lispworks) whitespace-p
+       char))))
+
 (defconstant +whitespace-chars+
-  (flet ((whitespace-p (c)
-           (position c '(#\Space #\Newline #\Backspace #\Tab
-                         #\Linefeed #\Page #\Return #\Rubout))))
-    (loop :for i :from 0 :to 255
-          :for c = (code-char i)
-          :when (#+sbcl sb-unicode:whitespace-p
-                 #+lispworks lw:whitespace-char-p
-                 #-(or sbcl lispworks) whitespace-p
-                 c)
-            :collecting c)))
+  (loop :for i :from 0 :to 255
+        :for c = (code-char i)
+        :when (whitespace-p c)
+          :collecting c))
 
 (defun all-permutations (list)
   (cond ((null list) nil)
