@@ -74,12 +74,16 @@
                  (write-to-string number)))))
 
 (defconstant +whitespace-chars+
-  (loop :for i :from 0 :to 255
-        :for c = (code-char i)
-        :when (#+sbcl sb-unicode:whitespace-p
-               #+lispworks lw:whitespace-char-p
-               c)
-          :collecting c))
+  (flet ((whitespace-p (c)
+           (position c '(#\Space #\Newline #\Backspace #\Tab
+                         #\Linefeed #\Page #\Return #\Rubout))))
+    (loop :for i :from 0 :to 255
+          :for c = (code-char i)
+          :when (#+sbcl sb-unicode:whitespace-p
+                 #+lispworks lw:whitespace-char-p
+                 #-(or sbcl lispworks) whitespace-p
+                 c)
+            :collecting c)))
 
 (defun all-permutations (list)
   (cond ((null list) nil)
