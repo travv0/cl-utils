@@ -5,7 +5,7 @@
   (:shadow cl:defun)
   (:export #:defun
            #:digits
-           #:+whitespace-chars+
+           #:*whitespace-chars*
            #:whitespace-p
            #:all-permutations
            #:make-combos))
@@ -13,7 +13,6 @@
 (in-package :travv0.utils)
 
 (defmacro defun (name lambda-list &body body)
-  (declare (optimize speed))
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
@@ -63,8 +62,14 @@
                                                                (second param))))
                                                     (list param))
                                                 (list (intern (string-upcase
-                                                               (write-to-string param))))))))
+                                                               (write-to-string param)))))))
+           (ignore-list (remove-if-not (lambda (sym)
+                                         (char= #\_
+                                                (char (write-to-string sym) 0)))
+                                       defun-lambda-list)))
       `(cl:defun ,name (,@defun-lambda-list)
+         ,(when ignore-list
+            `(declare (ignore ,@ignore-list)))
          (destructuring-bind ,db-lambda-list (list ,@expression)
            ,@body)))))
 
@@ -74,19 +79,18 @@
     (number (map 'list (compose #'parse-integer #'string)
                  (write-to-string number)))))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defun whitespace-p (char)
-    (flet ((whitespace-p (c)
-             (not (not (position c '(#\Space #\Newline #\Backspace #\Tab
-                                     #\Linefeed #\Page #\Return #\Rubout))))))
-      (#+sbcl sb-unicode:whitespace-p
-       #+lispworks lw:whitespace-char-p
-       #-(or sbcl lispworks) whitespace-p
-       char))))
+(defun whitespace-p (char)
+  #+sbcl (not (not (sb-unicode:whitespace-p char)))
+  #+lispworks (lw:whitespace-char-p char)
+  #-(or sbcl lispworks)
+  (not (not (position char
+                      '(#\Space #\Newline #\Backspace #\Tab
+                        #\Linefeed #\Page #\Return #\Rubout)))))
 
-(defconstant +whitespace-chars+
-  (loop :for i :from 0 :to 255
-        :for c = (code-char i)
+(defparameter *whitespace-chars*
+  (loop :for i :from 0
+        :for c = (ignore-errors (code-char i))
+        :while c
         :when (whitespace-p c)
           :collecting c))
 
