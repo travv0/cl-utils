@@ -21,33 +21,32 @@
                        (append new-list '(&allow-other-keys))
                        new-list))
                  list)))
-    (let* ((expression (loop :with into-keys = nil
+    (let* ((expression (loop :with into-keys = nil :and into-opt = nil
                              :for param :in lambda-list
-                             :when (not (or (char= (char (write-to-string param) 0)
-                                                   #\&)
-                                            (char/= (char (write-to-string param) 0)
-                                                    #\()))
-                               :append (if into-keys
-                                           (if (listp param)
-                                               (if (listp (car param))
-                                                   (car param)
-                                                   (list (make-keyword
-                                                          (write-to-string (car param)))
-                                                         (intern (write-to-string (car param)))))
-                                               (list (make-keyword param) param))
-                                           (list (intern (string-upcase
-                                                          (write-to-string param)))))
-                             :when (eql param '&key)
-                               :do (setf into-keys t)))
-           (db-lambda-list (remove-if (lambda (param)
-                                        (and (or (char= (char (write-to-string param)
-                                                              0)
+                             :when (and (and (not into-opt) (not into-keys))
+                                        (not (or (char= (char (write-to-string param) 0)
                                                         #\&)
-                                                 (char/= (char (write-to-string param)
-                                                               0)
-                                                         #\())
-                                             (not (eql param '&key))))
-                                      (add-allow-keys lambda-list)))
+                                                 (char/= (char (write-to-string param) 0)
+                                                         #\())))
+                               :append (list (intern (string-upcase
+                                                      (write-to-string param))))
+                             :when (eql param '&key)
+                               :do (setf into-keys t)
+                             :when (eql param '&optional)
+                               :do (setf into-opt t)))
+           (db-lambda-list (loop :with into-opt = nil
+                                 :for param :in (add-allow-keys lambda-list)
+                                 :when (eql param '&optional)
+                                   :do (setf into-opt t)
+                                 :unless (or into-opt
+                                             (and (or (char= (char (write-to-string param)
+                                                                   0)
+                                                             #\&)
+                                                      (char/= (char (write-to-string param)
+                                                                    0)
+                                                              #\())
+                                                  (not (eql param '&key))))
+                                   :collect param))
            (defun-lambda-list (loop :with into-keys = nil
                                     :for param :in lambda-list
                                     :when (eql param '&key)
