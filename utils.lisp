@@ -2,8 +2,7 @@
 (uiop:define-package #:travv0.utils
     (:nicknames :tu)
   (:use #:cl #:alexandria)
-  (:shadow cl:defun)
-  (:export #:defun
+  (:export #:desfun
            #:digits
            #:*whitespace-chars*
            #:whitespace-p
@@ -12,7 +11,7 @@
 
 (in-package :travv0.utils)
 
-(defmacro defun (name lambda-list &body body)
+(defmacro desfun (name lambda-list &body body)
   (labels ((add-allow-keys (list)
              (if (proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
@@ -67,7 +66,7 @@
                                          (char= #\_
                                                 (char (write-to-string sym) 0)))
                                        defun-lambda-list)))
-      `(cl:defun ,name (,@defun-lambda-list)
+      `(defun ,name (,@defun-lambda-list)
          ,(when ignore-list
             `(declare (ignore ,@ignore-list)))
          (destructuring-bind ,db-lambda-list (list ,@expression)
