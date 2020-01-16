@@ -22,12 +22,9 @@
                  list)))
     (let* ((expression (loop :with into = nil
                              :for param :in lambda-list
-                             :when (not (or (char= (char (write-to-string param) 0)
-                                                   #\&)
-                                            (char/= (char (write-to-string param) 0)
-                                                    #\()))
+                             :unless (or (char= (char (write-to-string param) 0) #\&))
                                :append (case into
-                                         ('&key
+                                         (&key
                                           (if (listp param)
                                               (if (listp (car param))
                                                   (car param)
@@ -35,9 +32,9 @@
                                                          (write-to-string (car param)))
                                                         (intern (write-to-string (car param)))))
                                               (list (make-keyword param) param)))
-                                         ('&optional (if (listp param)
-                                                         (list (car param))
-                                                         (list param)))
+                                         (&optional (if (listp param)
+                                                        (list (car param))
+                                                        (list param)))
                                          (otherwise
                                           (list (intern (string-upcase
                                                          (write-to-string param))))))
@@ -46,10 +43,7 @@
            (db-lambda-list (remove-if (lambda (param)
                                         (and (or (char= (char (write-to-string param)
                                                               0)
-                                                        #\&)
-                                                 (char/= (char (write-to-string param)
-                                                               0)
-                                                         #\())
+                                                        #\&))
                                              (not (position param
                                                             '(&optional &key)))))
                                       (add-allow-keys lambda-list)))
@@ -58,7 +52,7 @@
                                     :when (char= #\& (char (write-to-string param) 0))
                                       :do (setf into param)
                                     :collect (case into
-                                               ('&key
+                                               (&key
                                                 (if (listp param)
                                                     (if (listp (car param))
                                                         param
@@ -66,17 +60,11 @@
                                                                (write-to-string (car param)))
                                                               (second param)))
                                                     param))
-                                               ('&optional param)
+                                               (&optional param)
                                                (otherwise
                                                 (intern (string-upcase
-                                                         (write-to-string param)))))))
-           (ignore-list (remove-if-not (lambda (sym)
-                                         (char= #\_
-                                                (char (write-to-string sym) 0)))
-                                       defun-lambda-list)))
+                                                         (write-to-string param))))))))
       `(defun ,name (,@defun-lambda-list)
-         ,(when ignore-list
-            `(declare (ignore ,@ignore-list)))
          (destructuring-bind ,db-lambda-list (list ,@expression)
            ,@body)))))
 
@@ -85,21 +73,6 @@
     (string (map 'list (compose #'parse-integer #'string) number))
     (number (map 'list (compose #'parse-integer #'string)
                  (write-to-string number)))))
-
-(defun whitespace-p (char)
-  #+sbcl (not (not (sb-unicode:whitespace-p char)))
-  #+lispworks (lw:whitespace-char-p char)
-  #-(or sbcl lispworks)
-  (not (not (position char
-                      '(#\Space #\Newline #\Backspace #\Tab
-                        #\Linefeed #\Page #\Return #\Rubout)))))
-
-(defparameter *whitespace-chars*
-  (loop :for i :from 0
-        :for c = (ignore-errors (code-char i))
-        :while c
-        :when (whitespace-p c)
-          :collecting c))
 
 (defun all-permutations (list)
   (cond ((null list) nil)
