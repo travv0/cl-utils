@@ -4,10 +4,9 @@
   (:use #:cl #:alexandria)
   (:export #:desfun
            #:digits
-           #:*whitespace-chars*
-           #:whitespace-p
            #:all-permutations
-           #:make-combos))
+           #:make-combos
+           #:get-command-line-args))
 
 (in-package :travv0.utils)
 
@@ -97,3 +96,9 @@
                                               (make-combos (1- n) (cdr list))))
                                   (r n (append (cdr list) (list (car list))) (1- i))))))))
     (r n list (length list))))
+
+(defun get-command-line-args ()
+  #+sbcl sb-ext:*posix-argv*
+  #+lispworks system:*line-arguments-list*
+  #+ecl ext:*command-args*
+  )

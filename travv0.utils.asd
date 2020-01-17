@@ -6,6 +6,6 @@
 
 (asdf:defsystem #:travv0.utils/test
     :serial t
-    :depends-on (:alexandria :fiveam)
+    :depends-on (:travv0.utils :alexandria :fiveam)
     :pathname "./t/"
     :components ((:file "test-utils")))
