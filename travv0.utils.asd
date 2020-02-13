@@ -1,8 +1,9 @@
 (asdf:defsystem #:travv0.utils
   :serial t
-  :depends-on (:alexandria)
+  :depends-on (:alexandria :defpackage-plus :defstar)
   :pathname "./"
-  :components ((:file "utils")))
+  :components ((:file "package")
+               (:file "utils")))
 
 (asdf:defsystem #:travv0.utils/test
     :serial t
