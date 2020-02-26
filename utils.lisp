@@ -98,9 +98,3 @@
                                               (make-combos (1- n) (cdr list))))
                                   (r n (append (cdr list) (list (car list))) (1- i))))))))
     (r n list (length list))))
-
-(defun* (get-command-line-args -> list) ()
-  #+sbcl sb-ext:*posix-argv*
-  #+lispworks system:*line-arguments-list*
-  #+ecl ext:*command-args*
-  )
