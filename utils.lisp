@@ -1,7 +1,5 @@
 (in-package :travv0.utils)
 
-(setf defstar:*check-argument-types-explicitly?* t)
-
 (defmacro desfun (name lambda-list &body body)
   (labels ((add-allow-keys (list)
              (if (a:proper-list-p list)
@@ -59,22 +57,18 @@
          (destructuring-bind ,db-lambda-list (list ,@expression)
            ,@body)))))
 
-(defun* (from-digits -> integer) ((digits cons))
-  (:pre (every (lambda (d) (and (integerp d) (<= 0 d 9))) digits))
+(defun from-digits (digits)
   (read-from-string (map 'string
                          (a:compose (a:rcurry #'elt 0) #'write-to-string)
                          digits)))
 
-(defun* (digits -> cons) ((number (or string integer)))
-  (:pre (if (stringp number)
-            (ignore-errors (parse-integer number))
-            t))
+(defun digits (number)
   (etypecase number
     (string (map 'list (a:compose #'parse-integer #'string) number))
     (integer (map 'list (a:compose #'parse-integer #'string)
                   (write-to-string number)))))
 
-(defun* (all-permutations -> list) ((list list))
+(defun all-permutations (list)
   (cond ((null list) nil)
         ((null (cdr list)) (list list))
         (t (remove-duplicates
@@ -84,17 +78,20 @@
                                                            :count 1))))
             :test 'equal))))
 
-(defun* (make-combos -> list) ((n fixnum plusp) (list list))
-  (:pre (>= (length list) n))
-  (labels ((r (n list i)
-             (cond ((<= n 0) nil)
-                   ((= n 1) (mapcar #'list list))
-                   (t (if (= i 0)
-                          '()
-                          (append (mapcar (lambda (elem)
-                                            (cons (car list) elem))
-                                          (if (<= n 2)
-                                              (mapcar #'list (cdr list))
-                                              (make-combos (1- n) (cdr list))))
-                                  (r n (append (cdr list) (list (car list))) (1- i))))))))
-    (r n list (length list))))
+(defun make-combos (n list)
+  (let ((n (if (>= n (length list)) (length list) n)))
+    (labels ((r (n list i)
+               (cond ((<= n 0) nil)
+                     ((= n 1) (mapcar #'list list))
+                     (t (if (= i 0)
+                            '()
+                            (append (mapcar (lambda (elem)
+                                              (cons (car list) elem))
+                                            (if (<= n 2)
+                                                (mapcar #'list (cdr list))
+                                                (make-combos (1- n) (cdr list))))
+                                    (r n (append (cdr list) (list (car list))) (1- i))))))))
+      (r n list (length list)))))
+
+(defun get-command-line-args ()
+  (uiop:raw-command-line-arguments))
