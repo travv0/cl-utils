@@ -6,6 +6,7 @@
            #:fn
            #:digits
            #:from-digits
-           #:all-permutations
+           #:permutations
+           #:combinations
            #:make-combos
            #:get-command-line-args))

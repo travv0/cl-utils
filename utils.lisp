@@ -91,17 +91,7 @@
     (integer (map 'list (a:compose #'parse-integer #'string)
                   (write-to-string number)))))
 
-(defun all-permutations (list)
-  (cond ((null list) nil)
-        ((null (cdr list)) (list list))
-        (t (remove-duplicates
-            (loop for element in list
-                  append (mapcar (lambda (l) (cons element l))
-                                 (all-permutations (remove element list
-                                                           :count 1))))
-            :test 'equal))))
-
-(defun make-combos (n list)
+(defun permutations (n list)
   (let ((n (if (>= n (length list)) (length list) n)))
     (labels ((r (n list i)
                (cond ((<= n 0) nil)
@@ -112,8 +102,23 @@
                                               (cons (car list) elem))
                                             (if (<= n 2)
                                                 (mapcar #'list (cdr list))
-                                                (make-combos (1- n) (cdr list))))
+                                                (permutations (1- n) (cdr list))))
                                     (r n (append (cdr list) (list (car list))) (1- i))))))))
+      (r n list (length list)))))
+
+(defun combinations (n list)
+  (let ((n (if (>= n (length list)) (length list) n)))
+    (labels ((r (n list i)
+               (cond ((<= n 0) nil)
+                     ((= n 1) (mapcar #'list list))
+                     (t (if (= i 0)
+                            '()
+                            (append (mapcar (lambda (elem)
+                                              (cons (car list) elem))
+                                            (if (<= n 2)
+                                                (mapcar #'list (cdr list))
+                                                (r (1- n) (cdr list) i)))
+                                    (r n (cdr list) (1- i))))))))
       (r n list (length list)))))
 
 (defun get-command-line-args ()
