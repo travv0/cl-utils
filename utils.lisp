@@ -3,17 +3,22 @@
 (defmacro desfun (name lambda-list &body body)
   (multiple-value-bind (expression db-lambda-list defun-lambda-list)
       (parse-desfun-lambda-list lambda-list)
-    `(progn (defun ,name (,@defun-lambda-list)
-              (destructuring-bind ,db-lambda-list (list ,@expression)
-                ,@body))
+    `(progn (defun ,name ,@(desfun-body expression defun-lambda-list db-lambda-list body))
             (function ,name))))
+
+(defun desfun-body (expression defun-lambda-list db-lambda-list body)
+  (let ((has-docstring-p (typep (first body) 'string)))
+    `((,@defun-lambda-list)
+      ,(when has-docstring-p (first body))
+      (destructuring-bind ,db-lambda-list (list ,@expression)
+        ,@(if has-docstring-p
+              (rest body)
+              body)))))
 
 (defmacro sfun (lambda-list &body body)
   (multiple-value-bind (expression db-lambda-list defun-lambda-list)
       (parse-desfun-lambda-list lambda-list)
-    `(lambda (,@defun-lambda-list)
-       (destructuring-bind ,db-lambda-list (list ,@expression)
-         ,@body))))
+    `(lambda ,@(desfun-body expression defun-lambda-list db-lambda-list body))))
 
 (defmacro fn (name-or-lambda-list &body body)
   (etypecase name-or-lambda-list
