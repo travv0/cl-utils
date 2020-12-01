@@ -1,6 +1,26 @@
 (in-package :travv0.utils)
 
 (defmacro desfun (name lambda-list &body body)
+  (multiple-value-bind (expression db-lambda-list defun-lambda-list)
+      (parse-desfun-lambda-list lambda-list)
+    `(progn (defun ,name (,@defun-lambda-list)
+              (destructuring-bind ,db-lambda-list (list ,@expression)
+                ,@body))
+            (function ,name))))
+
+(defmacro sfun (lambda-list &body body)
+  (multiple-value-bind (expression db-lambda-list defun-lambda-list)
+      (parse-desfun-lambda-list lambda-list)
+    `(lambda (,@defun-lambda-list)
+       (destructuring-bind ,db-lambda-list (list ,@expression)
+         ,@body))))
+
+(defmacro fn (name-or-lambda-list &body body)
+  (etypecase name-or-lambda-list
+    (symbol `(desfun ,name-or-lambda-list ,(first body) ,@(rest body)))
+    (list `(sfun ,name-or-lambda-list ,@body))))
+
+(defun parse-desfun-lambda-list (lambda-list)
   (labels ((add-allow-keys (list)
              (if (a:proper-list-p list)
                  (let ((new-list (mapcar #'add-allow-keys list)))
@@ -53,9 +73,7 @@
                                               (otherwise
                                                (intern (string-upcase
                                                         (write-to-string param))))))))
-      `(defun ,name (,@defun-lambda-list)
-         (destructuring-bind ,db-lambda-list (list ,@expression)
-           ,@body)))))
+      (values expression db-lambda-list defun-lambda-list))))
 
 (defun from-digits (digits)
   (read-from-string (map 'string

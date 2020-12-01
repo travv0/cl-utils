@@ -2,6 +2,8 @@
   (:use-only #:cl)
   (:local-nicknames (:a #:alexandria))
   (:export #:desfun
+           #:sfun
+           #:fn
            #:digits
            #:from-digits
            #:all-permutations
