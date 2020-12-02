@@ -5,8 +5,8 @@
   :components ((:file "package")
                (:file "utils")))
 
-(asdf:defsystem #:travv0.utils/test
+(asdf:defsystem #:travv0.utils/tests
     :serial t
-    :depends-on (:travv0.utils :alexandria :rove)
+    :depends-on (:travv0.utils :alexandria :fiveam)
     :pathname "./t/"
     :components ((:file "test-utils")))
