@@ -119,6 +119,3 @@
                                                 (r (cdr list) (1- n) i)))
                                     (r (cdr list) n (1- i))))))))
       (r list n (length list)))))
-
-(defun get-command-line-args ()
-  (uiop:raw-command-line-arguments))
