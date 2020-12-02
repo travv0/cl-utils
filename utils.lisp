@@ -1,11 +1,10 @@
 (in-package :travv0.utils)
 
 (defmacro desfun (name lambda-list &body body)
-  (alexandria:once-only (name)
-    (multiple-value-bind (expression db-lambda-list defun-lambda-list)
-        (parse-desfun-lambda-list lambda-list)
-      `(progn (defun ,name ,@(desfun-body expression defun-lambda-list db-lambda-list body))
-              (function ,name)))))
+  (multiple-value-bind (expression db-lambda-list defun-lambda-list)
+      (parse-desfun-lambda-list lambda-list)
+    `(progn (defun ,name ,@(desfun-body expression defun-lambda-list db-lambda-list body))
+            (function ,name))))
 
 (defun desfun-body (expression defun-lambda-list db-lambda-list body)
   (let ((has-docstring-p (typep (first body) 'string)))
@@ -22,10 +21,9 @@
     `(lambda ,@(desfun-body expression defun-lambda-list db-lambda-list body))))
 
 (defmacro fn (name-or-lambda-list &body body)
-  (alexandria:once-only (name-or-lambda-list)
-    (etypecase name-or-lambda-list
-      (symbol `(desfun ,name-or-lambda-list ,(first body) ,@(rest body)))
-      (list `(sfun ,name-or-lambda-list ,@body)))))
+  (etypecase name-or-lambda-list
+    (symbol `(desfun ,name-or-lambda-list ,(first body) ,@(rest body)))
+    (list `(sfun ,name-or-lambda-list ,@body))))
 
 (defun parse-desfun-lambda-list (lambda-list)
   (labels ((add-allow-keys (list)
