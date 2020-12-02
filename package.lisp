@@ -8,5 +8,4 @@
            #:from-digits
            #:permutations
            #:combinations
-           #:make-combos
            #:get-command-line-args))
