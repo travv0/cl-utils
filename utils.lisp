@@ -119,3 +119,24 @@
                                                 (r (cdr list) (1- n) i)))
                                     (r (cdr list) n (1- i))))))))
       (r list n (length list)))))
+
+(defun canonicalize-path (path-string &optional (dir-name (uiop:getcwd)))
+  (if (a:emptyp path-string)
+      dir-name
+      (let* ((from-home-p (char= (elt path-string 0) #\~))
+             (path-string (if from-home-p
+                              (loop for i from 1
+                                    for c = (ignore-errors (elt path-string i))
+                                    while (or (char= c #\/)
+                                              (char= c #\\))
+                                    finally (return (subseq path-string i)))
+                              path-string)))
+        (if from-home-p
+            (uiop:unix-namestring
+             (uiop:ensure-absolute-pathname
+              (uiop:parse-native-namestring path-string)
+              (user-homedir-pathname)))
+            (uiop:unix-namestring
+             (uiop:ensure-absolute-pathname
+              (uiop:parse-native-namestring path-string)
+              dir-name))))))

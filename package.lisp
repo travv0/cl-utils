@@ -8,4 +8,5 @@
            #:from-digits
            #:permutations
            #:combinations
-           #:get-command-line-args))
+           #:get-command-line-args
+           #:canonicalize-path))
