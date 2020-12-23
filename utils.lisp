@@ -120,24 +120,23 @@
                                     (r (cdr list) n (1- i))))))))
       (r list n (length list)))))
 
-(defun canonicalize-path (path-string &optional (dir-name (uiop:getcwd)))
-  (when path-string
-    (if (a:emptyp path-string)
-        dir-name
-        (let* ((from-home-p (char= (elt path-string 0) #\~))
-               (path-string (if from-home-p
-                                (loop for i from 1
-                                      for c = (ignore-errors (elt path-string i))
-                                      while (or (char= c #\/)
-                                                (char= c #\\))
-                                      finally (return (subseq path-string i)))
-                                path-string)))
-          (if from-home-p
-              (uiop:unix-namestring
-               (uiop:ensure-absolute-pathname
-                (uiop:parse-native-namestring path-string)
-                (user-homedir-pathname)))
-              (uiop:unix-namestring
-               (uiop:ensure-absolute-pathname
-                (uiop:parse-native-namestring path-string)
-                dir-name)))))))
+(defun canonicalize-path (path &optional (dir-name (uiop:getcwd)))
+  "Converts `path-string' to its canonical form, assuming `dir-name' as
+the current working directory. Returns the canonical path as a string,
+or nil if `path-string' is nil."
+  (when path
+    (let ((path-string (namestring path)))
+      (if (a:emptyp path-string)
+          dir-name
+          (let* ((from-home-p (char= (elt path-string 0) #\~))
+                 (path-string (if from-home-p
+                                  (loop for i from 1
+                                        for c = (ignore-errors (elt path-string i))
+                                        while (or (char= c #\/)
+                                                  (char= c #\\))
+                                        finally (return (subseq path-string i)))
+                                  path-string)))
+            (uiop:native-namestring
+             (uiop:ensure-absolute-pathname
+              (uiop:parse-native-namestring path-string)
+              (if from-home-p (user-homedir-pathname) dir-name))))))))
