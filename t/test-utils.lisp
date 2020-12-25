@@ -85,4 +85,4 @@
                "/asdf"))
   (is (string= (canonicalize-path "~///.//test/fdsa/..//asdf")
                (namestring (merge-pathnames "test/asdf" (user-homedir-pathname)))))
-  (is (eq nil nil)))
+  (is (eq (canonicalize-path nil) nil)))
