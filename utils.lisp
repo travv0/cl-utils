@@ -81,11 +81,12 @@
       (values expression db-lambda-list defun-lambda-list))))
 
 (defun from-digits (digits)
-  (read-from-string (map 'string
-                         (a:compose (a:rcurry #'elt 0) #'write-to-string)
-                         digits)))
+  "Converts a list of digits to an integer."
+  (read-from-string (map 'string #'digit-char digits)))
 
 (defun digits (number)
+  "Converts an integer or a string representation of an integer to a
+  list of its digits."
   (etypecase number
     (string (map 'list (a:compose #'parse-integer #'string) number))
     (integer (digits (write-to-string number)))))
