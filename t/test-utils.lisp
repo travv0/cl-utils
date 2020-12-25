@@ -1,5 +1,6 @@
 (defpackage :travv0.utils/tests
   (:use #:cl #:travv0.utils #:fiveam)
+  (:local-nicknames (#:a #:alexandria))
   (:export #:run-tests))
 
 (in-package #:travv0.utils/tests)
@@ -58,12 +59,16 @@
   (is (equal (from-digits '(6 5 4 3 2)) 65432)))
 
 (test permutations
-  (is (equal (permutations '(1 2 3))
-             '((1 2 3) (1 3 2) (2 3 1) (2 1 3) (3 1 2) (3 2 1))))
-  (is (equal (permutations '(1 2 3) 2)
-             '((1 2) (1 3) (2 3) (2 1) (3 1) (3 2))))
-  (is (equal (permutations '() 2) '()))
-  (is (equal (permutations '(1 2 3) 1) '((1) (2) (3)))))
+  (is (a:set-equal (permutations '(1 2 3))
+                   '((1 2 3) (1 3 2) (2 3 1) (2 1 3) (3 1 2) (3 2 1))
+                   :test #'equal))
+  (is (a:set-equal (permutations '(1 2 3) 2)
+                   '((1 2) (1 3) (2 3) (2 1) (3 1) (3 2))
+                   :test #'equal))
+  (is (a:set-equal (permutations '() 2) '()
+                   :test #'equal))
+  (is (a:set-equal (permutations '(1 2 3) 1) '((1) (2) (3))
+                   :test #'equal)))
 
 (test combinations
   (is (equal (combinations '(1 2 3) 3)
@@ -72,3 +77,12 @@
              '((1 2) (1 3) (2 3))))
   (is (equal (combinations '() 2) '()))
   (is (equal (combinations '(1 2 3) 1) '((1) (2) (3)))))
+
+(test canonicalize-path˜
+  (is (string= (canonicalize-path "asdf")
+               (namestring (merge-pathnames "asdf" (uiop:getcwd)))))
+  (is (string= (canonicalize-path "/asdf")
+               "/asdf"))
+  (is (string= (canonicalize-path "~///.//test/fdsa/..//asdf")
+               (namestring (merge-pathnames "test/asdf" (user-homedir-pathname)))))
+  (is (eq nil nil)))

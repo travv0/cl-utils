@@ -90,20 +90,24 @@
     (string (map 'list (a:compose #'parse-integer #'string) number))
     (integer (digits (write-to-string number)))))
 
-(defun permutations (list &optional (n (length list)))
-  (let ((n (if (>= n (length list)) (length list) n)))
-    (labels ((r (list n i)
-               (cond ((<= n 0) nil)
-                     ((= n 1) (mapcar #'list list))
-                     (t (if (= i 0)
-                            '()
-                            (append (mapcar (lambda (elem)
-                                              (cons (car list) elem))
-                                            (if (<= n 2)
-                                                (mapcar #'list (cdr list))
-                                                (permutations (cdr list) (1- n))))
-                                    (r (append (cdr list) (list (car list))) n (1- i))))))))
-      (r list n (length list)))))
+(defun permutations (list &optional (length (length list)))
+  "Returns all permutations of a list, optionally restricted to a
+  given length."
+  (if (plusp length)
+      (let (result)
+        (dotimes (i (length list) result)
+          (destructuring-bind (front (n . back)) (split list i)
+            (let ((next (append front back)))
+              (if next
+                  (dolist (p (permutations next (1- length)) result)
+                    (push (cons n p) result))
+                  (push (list n) result))))))
+      (list nil)))
+
+(defun split (seq n)
+  "Split sequence at index n."
+  (list (subseq seq 0 n)
+        (subseq seq n)))
 
 (defun combinations (list n)
   (let ((n (if (>= n (length list)) (length list) n)))
