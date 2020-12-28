@@ -78,11 +78,11 @@
   (is (equal (combinations '() 2) '()))
   (is (equal (combinations '(1 2 3) 1) '((1) (2) (3)))))
 
-(test canonicalize-path˜
+(test canonicalize-path
   (is (string= (canonicalize-path "asdf")
-               (namestring (merge-pathnames "asdf" (uiop:getcwd)))))
+               (uiop:native-namestring (merge-pathnames "asdf" (uiop:getcwd)))))
   (is (string= (canonicalize-path "/asdf")
-               "/asdf"))
-  (is (string= (canonicalize-path "~///.//test/fdsa/..//asdf")
-               (namestring (merge-pathnames "test/asdf" (user-homedir-pathname)))))
+               (uiop:native-namestring "/asdf")))
+  (is (string= (canonicalize-path "~////test/fdsa/..//asdf")
+               (uiop:native-namestring (merge-pathnames "test/asdf" (user-homedir-pathname)))))
   (is (eq (canonicalize-path nil) nil)))
