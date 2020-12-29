@@ -141,7 +141,6 @@ or nil if `path-string' is nil."
                                                   (char= c #\\))
                                         finally (return (subseq path-string i)))
                                   path-string)))
-            (uiop:native-namestring
-             (uiop:ensure-absolute-pathname
-              (uiop:parse-native-namestring path-string)
-              (if from-home-p (user-homedir-pathname) dir-name))))))))
+            (uiop:ensure-absolute-pathname
+             (uiop:parse-native-namestring path-string)
+             (if from-home-p (user-homedir-pathname) dir-name)))))))
