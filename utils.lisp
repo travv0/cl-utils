@@ -126,9 +126,9 @@
       (r list n (length list)))))
 
 (defun canonicalize-path (path &optional (dir-name (uiop:getcwd)))
-  "Converts `path-string' to its canonical form, assuming `dir-name' as
-the current working directory. Returns the canonical path as a string,
-or nil if `path-string' is nil."
+  "Converts `path' to its canonical form, assuming `dir-name' as the
+current working directory. Returns the canonical path, or nil if
+`path' is nil."
   (when path
     (let ((path-string (namestring path)))
       (if (a:emptyp path-string)
